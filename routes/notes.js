@@ -2,7 +2,9 @@ const express=require('express');
 const router=express.Router();
 const Note= require("../models/Note");
 const fetchuser=require("../middeware/fetchuser");
-const {body,validationResult}=require('express-validator')
+const {body,validationResult}=require('express-validator');
+const { findByIdAndDelete } = require('../models/User');
+
 router.get("/fetchallnotes" , fetchuser , async(req,res)=>{
     try {
         // console.log(req.id)
@@ -44,6 +46,57 @@ router.post("/addnote",fetchuser, [
     } catch (error) {
         console.log(error.message);
         return res.status(500).send("errror occured")
+    }
+})
+
+
+// update
+
+router.put("/update/:id",fetchuser,async(req,res)=>{
+    try {
+        const {title,description,tag}=req.body;
+    const newnote={};
+    if(title){
+        newnote.title=title;
+    }
+    if(description){
+        newnote.desciption=description;
+    }
+    if(tag){
+        newnote.tag=tag;
+    }
+    let  note=await Note.findById(req.params.id);
+    if(!note){
+        return res.status(404).send("Not found");
+    }
+
+    if(note.user.toString() !== req.id){
+        return res.status(404).send("not allowed");
+    }
+    note=await Note.findByIdAndUpdate(req.params.id,{$set:newnote},{new:true});
+    return res.json({note});
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).send("error occured");
+    }
+})
+
+
+//delete
+router.delete("/delete/:id",fetchuser,async(req,res)=>{
+    try {
+        let note=await Note.findById(req.params.id);
+        if(!note){
+            return res.status(400).send("not allowed");
+        }
+        if(req.id!==note.user.toString()){
+            return res.status(404).send("Not allowed");
+        }
+        await Note.findByIdAndDelete(req.params.id);
+        return res.status(200).send("done successfully");
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send("Internal Server Error Occured");
     }
 })
 module.exports=router; 
