@@ -98,5 +98,6 @@ router.delete("/delete/:id",fetchuser,async(req,res)=>{
         console.log(error.message);
         return res.status(500).send("Internal Server Error Occured");
     }
+    //why not commiting
 })
 module.exports=router; 
