@@ -1,5 +1,5 @@
 const jwt=require('jsonwebtoken');
-const JWT_SECRET='Ab@280102!';
+const JWT_SECRET='123!';
 
 const fetchuser=(req,res,next)=>{
     // console.log(req);
